@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../../models/User');
 const router = express.Router();
 const gravatar = require('gravatar');
+const bcrypt = require('bcryptjs');
 
 //@route    GET api/users/test
 //@desc     Tests users route
@@ -30,6 +31,18 @@ router.post('/register', (req, res) => {
                     avatar,
                     password : req.body.password,
                 });
+
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(newUser.password, salt, (err, hash) => {
+                        if (err) {
+                            console.log(err);;
+                        }
+                        newUser.password = hash;
+                        newUser.save()
+                            .then(user => res.json(user))
+                            .catch(err => console.log(err))
+                    })
+                })
         }
     })
 })
